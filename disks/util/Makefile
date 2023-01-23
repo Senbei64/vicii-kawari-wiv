@@ -17,7 +17,7 @@ kawari_util_$(VERSION): subdirs
 	#c1541 -attach kawari_util_$(VERSION).d64 -write tests/flashtest/flashtest.prg flashtest
 	c1541 -attach kawari_util_$(VERSION).d64 -write 80col/80col-51200.prg 80col-51200
 	c1541 -attach kawari_util_$(VERSION).d64 -write vmem/vmem-49152.prg vmem-49152
-	c1541 -attach kawari_util_$(VERSION).d64 -write novaterm/kawari.ml 80col.kawari
+	#c1541 -attach kawari_util_$(VERSION).d64 -write novaterm/kawari.ml 80col.kawari
 	c1541 -attach kawari_util_$(VERSION).d64 -write ansii/ansii.prg ansii
 	c1541 -attach kawari_util_$(VERSION).d64 -list
 
@@ -25,7 +25,7 @@ subdirs:
 	$(MAKE) -C common
 	$(MAKE) -C config
 	$(MAKE) -C 80col
-	$(MAKE) -C novaterm
+	#$(MAKE) -C novaterm
 	$(MAKE) -C tests
 	$(MAKE) -C ansii
 
@@ -34,7 +34,7 @@ clean:
 	$(MAKE) -C common clean
 	$(MAKE) -C config clean
 	$(MAKE) -C 80col clean
-	$(MAKE) -C novaterm clean
+	#$(MAKE) -C novaterm clean
 	$(MAKE) -C tests clean
 	$(MAKE) -C flash -f Makefile.LH clean
 	$(MAKE) -C ansii clean

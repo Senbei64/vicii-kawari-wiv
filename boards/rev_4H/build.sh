@@ -1,10 +1,13 @@
 #!/bin/sh
 mkdir -p build
 
-MAJ=1
-MIN=12
+#MAJ=1
+MAJ=0
+#MIN=12
+MIN=1
 
-ALL="MAINLH DOTCLH MKIILH SARULH"
+#ALL="MAINLH DOTCLH MKIILH SARULH"
+ALL="WIV1LH"
 
 for V in $ALL
 do

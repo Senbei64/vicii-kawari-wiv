@@ -3,3 +3,8 @@ _xmsgs
 **/top.bit
 **/top.prj
 kawari_progspi.tmp
+*.bak
+*.d64
+*.d81
+*.exe
+*.lst

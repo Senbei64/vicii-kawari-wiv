@@ -180,6 +180,12 @@ module registers
 `endif
 `endif // WITH_EXTENSIONS
 
+`ifdef WIV_EXTENSIONS
+           output reg wiv_cre = 1'b0, // VIC-WIV control registers read enable
+           output reg [7:1] wiv_cr3_unused = 7'b0000000,
+           output reg [7:0] wiv_cr4_unused = 8'b00000000,
+`endif
+
            output reg rw_ctl = 1'b0,
            output reg [1:0] chip
        );
@@ -838,8 +844,28 @@ begin
                         dbo[7] <= raster_line[8];
                     end
                     /* 0x12 */ `REG_RASTER_LINE: dbo[7:0] <= raster_line[7:0];
+
+`ifdef WIV_EXTENSIONS
+                    /* 0x13 */ `REG_LIGHT_PEN_X: begin
+                        if (wiv_cre) begin
+                            dbo[0] <= wiv_cre;
+                            dbo[7:1] <= wiv_cr3_unused;
+                        end else begin
+                            dbo[7:0] <= lpx;
+                        end
+                    end
+                    /* 0x14 */ `REG_LIGHT_PEN_Y: begin
+                        if (wiv_cre) begin
+                            dbo[7:0] <= wiv_cr4_unused;
+                        end else begin
+                            dbo[7:0] <= lpx;
+                        end
+                    end
+`else
                     /* 0x13 */ `REG_LIGHT_PEN_X: dbo[7:0] <= lpx;
                     /* 0x14 */ `REG_LIGHT_PEN_Y: dbo[7:0] <= lpy;
+`endif //WIV_EXTENSIONS
+                    
                     /* 0x15 */ `REG_SPRITE_ENABLE: dbo[7:0] <= sprite_en;
                     /* 0x16 */ `REG_SCREEN_CONTROL_2:
                         dbo[7:0] <= {2'b11, res, mcm, csel, xscroll};
@@ -1075,6 +1101,15 @@ begin
                         raster_irq_compare[8] <= dbi[7];
                     end
                     /* 0x12 */ `REG_RASTER_LINE: raster_irq_compare[7:0] <= dbi[7:0];
+`ifdef WIV_EXTENSIONS
+                    /* 0x13 */ `REG_LIGHT_PEN_X: begin
+					    wiv_cre <= dbi[0];
+						wiv_cr3_unused[7:1] = dbi[7:1];
+					end
+                    /* 0x14 */ `REG_LIGHT_PEN_Y: begin
+						wiv_cr4_unused[7:0] = dbi[7:0];
+					end
+`endif //WIV_EXTENSIONS
                     /* 0x15 */ `REG_SPRITE_ENABLE: sprite_en <= dbi[7:0];
                     /* 0x16 */ `REG_SCREEN_CONTROL_2: begin
                         xscroll <= dbi[2:0];
