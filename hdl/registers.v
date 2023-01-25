@@ -182,7 +182,10 @@ module registers
 
 `ifdef WIV_EXTENSIONS
            output reg wiv_cre = 1'b0, // VIC-WIV control registers read enable
-           output reg [7:1] wiv_cr3_unused = 7'b0000000,
+           output reg wiv_cr3_unused_1 = 1'b0,
+           output reg wiv_dvb = 1'b0, // VIC-WIV disable vertical border
+           output reg wiv_dmb = 1'b0, // VIC-WIV disable main border
+           output reg [7:4] wiv_cr3_unused = 4'b0000,
            output reg [7:0] wiv_cr4_unused = 8'b00000000,
 `endif
 
@@ -849,7 +852,10 @@ begin
                     /* 0x13 */ `REG_LIGHT_PEN_X: begin
                         if (wiv_cre) begin
                             dbo[0] <= wiv_cre;
-                            dbo[7:1] <= wiv_cr3_unused;
+                            dbo[1] <= wiv_cr3_unused_1;
+                            dbo[2] <= wiv_dvb;
+                            dbo[3] <= wiv_dmb;
+                            dbo[7:4] <= wiv_cr3_unused;
                         end else begin
                             dbo[7:0] <= lpx;
                         end
@@ -1103,12 +1109,15 @@ begin
                     /* 0x12 */ `REG_RASTER_LINE: raster_irq_compare[7:0] <= dbi[7:0];
 `ifdef WIV_EXTENSIONS
                     /* 0x13 */ `REG_LIGHT_PEN_X: begin
-					    wiv_cre <= dbi[0];
-						wiv_cr3_unused[7:1] = dbi[7:1];
-					end
+                        wiv_cre <= dbi[0];
+                        wiv_cr3_unused_1 <= dbi[1];
+                        wiv_dvb <= dbi[2];
+                        wiv_dmb <= dbi[3];
+                        wiv_cr3_unused[7:4] = dbi[7:4];
+                    end
                     /* 0x14 */ `REG_LIGHT_PEN_Y: begin
-						wiv_cr4_unused[7:0] = dbi[7:0];
-					end
+                        wiv_cr4_unused[7:0] = dbi[7:0];
+                    end
 `endif //WIV_EXTENSIONS
                     /* 0x15 */ `REG_SPRITE_ENABLE: sprite_en <= dbi[7:0];
                     /* 0x16 */ `REG_SCREEN_CONTROL_2: begin

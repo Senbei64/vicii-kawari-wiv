@@ -29,6 +29,10 @@ module border(
            input csel,
            input den,
            input dot_rising,
+`ifdef WIV_EXTENSIONS
+           input wiv_dvb, // VIC-WIV disable vertical border
+           input wiv_dmb, // VIC-WIV disable main border
+`endif
            output reg vborder,
            output reg main_border
        );
@@ -44,7 +48,11 @@ begin
             // check vborder bottom
             if ((raster_line == 247 && rsel == `FALSE) ||
                     (raster_line == 251 && rsel == `TRUE))
+`ifdef WIV_EXTENSIONS
+                set_vborder = ~wiv_dvb;
+`else
                 set_vborder = 1;
+`endif
             vborder = set_vborder;
             if (vborder == 0) begin
                 main_border = 0;
@@ -53,7 +61,11 @@ begin
         // check hborder - lands on 56 & 57 at the right pixels
         else if ((xpos == 351 && csel == `TRUE) ||
                  (xpos == 342 && csel == `FALSE)) begin
+`ifdef WIV_EXTENSIONS
+            main_border = ~wiv_dmb;
+`else
             main_border = 1;
+`endif
         end
 
         if (clk_phi) begin
@@ -67,7 +79,11 @@ begin
             // check vborder bottom
             if ((raster_line == 247 && rsel == `FALSE) ||
                     (raster_line == 251 && rsel == `TRUE))
+`ifdef WIV_EXTENSIONS
+                set_vborder = ~wiv_dvb;
+`else
                 set_vborder = 1;
+`endif
 
             if (cycle_num == 0)
                 vborder = set_vborder;

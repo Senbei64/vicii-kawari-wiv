@@ -305,6 +305,12 @@ reg hires_badline;
 `endif
 `endif // WITH_EXTENSIONS
 
+`ifdef WIV_EXTENSIONS
+wire wiv_cre; // VIC-WIV control registers read enable
+wire wiv_dvb; // VIC-WIV disable vertical border
+wire wiv_dmb; // VIC-WIV disable main border
+`endif
+
 wire idle;
 
 wire den; // display enable
@@ -542,6 +548,10 @@ border vic_border(
            .csel(csel),
            .den(den),
            .dot_rising(dot_rising[1]),
+`ifdef WIV_EXTENSIONS
+           .wiv_dvb(wiv_dvb),
+           .wiv_dmb(wiv_dmb),
+`endif
            .vborder(top_bot_border),
            .main_border(main_border)
        );
@@ -1103,6 +1113,11 @@ registers vic_registers(
               .dma_done(dma_done),
 `endif
 `endif // WITH_EXTENSIONS
+`ifdef WIV_EXTENSIONS
+              .wiv_cre(wiv_cre),
+              .wiv_dvb(wiv_dvb),
+              .wiv_dmb(wiv_dmb),
+`endif
               .rw_ctl(rw_ctl),
               .chip(chip) // config out
           );
