@@ -236,6 +236,7 @@ void main_menu(void)
     unsigned char new_lock_bits;
     unsigned short caps;
     unsigned int ln;
+	int is_wiv = 0;
 
     POKE(VIDEO_MEM_FLAGS, VMEM_FLAG_REGS_BIT);
     version_major = get_version_major();
@@ -252,6 +253,10 @@ void main_menu(void)
        has_rgb = 1;
        has_dvi = 1;
        has_comp = 1;
+    }
+
+    if (strncmp(variant, "wiv", 3) == 0) {
+       is_wiv = 1;
     }
 
     CLRSCRN;
@@ -274,12 +279,12 @@ void main_menu(void)
     }
     if (has_comp) {
        printf ("S/LUM burst    :\n");
-       if (version_short >= 267) {
+       if (version_short >= 267 || is_wiv) {
           printf ("NTSC 50        :\n");
           printf ("PAL  60        :\n");
        }
     }
-    if (has_dvi && version_short >= 267) {
+    if (has_dvi && version_short >= 267 || is_wiv) {
        printf ("Odd Fix Enable :\n");
        printf ("Even/Odd Field :\n");
     }
@@ -319,8 +324,8 @@ void main_menu(void)
           if (has_comp) {
              white_line_line = ln; ln++;
              show_display_bit(DISPLAY_WHITE_LINE_BIT, white_line_line, LABEL_ON_OFF);
-             // Only available since 1.11(267)
-             if (version_short >= 267) {
+             // Only available since 1.11(267), WIV is based on 1.12
+             if (version_short >= 267 || is_wiv) {
                 ntsc_50_line = ln; ln++;
                 show_display_bit(DISPLAY_NTSC_50_BIT, ntsc_50_line, LABEL_ON_OFF);
                 pal_60_line = ln; ln++;
