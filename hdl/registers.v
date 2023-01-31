@@ -83,7 +83,11 @@ module registers
            output reg handle_sprite_crunch,
            output reg [7:0] dbo,
            output reg [7:0] last_bus,
+`ifdef WIV_EXTENSIONS
+           output reg [3:0] cb,
+`else
            output reg [2:0] cb,
+`endif
            output reg [3:0] vm,
            output reg elp,
            output reg emmc,
@@ -182,7 +186,7 @@ module registers
 
 `ifdef WIV_EXTENSIONS
            output reg wiv_cre = 1'b0, // VIC-WIV control registers read enable
-           output reg wiv_cr3_unused_1 = 1'b0,
+           output reg wiv_xmp = 1'b0, // VIC-WIV extended memory pointers: enable all bits of register $18
            output reg wiv_dvb = 1'b0, // VIC-WIV disable vertical border
            output reg wiv_dmb = 1'b0, // VIC-WIV disable main border
            output reg [7:4] wiv_cr3_unused = 4'b0000,
@@ -852,7 +856,7 @@ begin
                     /* 0x13 */ `REG_LIGHT_PEN_X: begin
                         if (wiv_cre) begin
                             dbo[0] <= wiv_cre;
-                            dbo[1] <= wiv_cr3_unused_1;
+                            dbo[1] <= wiv_xmp;
                             dbo[2] <= wiv_dvb;
                             dbo[3] <= wiv_dmb;
                             dbo[7:4] <= wiv_cr3_unused;
@@ -861,11 +865,10 @@ begin
                         end
                     end
                     /* 0x14 */ `REG_LIGHT_PEN_Y: begin
-                        if (wiv_cre) begin
+                        if (wiv_cre)
                             dbo[7:0] <= wiv_cr4_unused;
-                        end else begin
+                        else
                             dbo[7:0] <= lpx;
-                        end
                     end
 `else
                     /* 0x13 */ `REG_LIGHT_PEN_X: dbo[7:0] <= lpx;
@@ -878,8 +881,13 @@ begin
                     /* 0x17 */ `REG_SPRITE_EXPAND_Y:
                         dbo[7:0] <= sprite_ye;
                     /* 0x18 */ `REG_MEMORY_SETUP: begin
+`ifdef WIV_EXTENSIONS
+                        dbo[0] <= cb[0] | ~wiv_xmp;
+                        dbo[3:1] <= cb[3:1];
+`else
                         dbo[0] <= 1'b1;
                         dbo[3:1] <= cb[2:0];
+`endif
                         dbo[7:4] <= vm[3:0];
                     end
                     // NOTE: Our irq is inverted already
@@ -1110,7 +1118,7 @@ begin
 `ifdef WIV_EXTENSIONS
                     /* 0x13 */ `REG_LIGHT_PEN_X: begin
                         wiv_cre <= dbi[0];
-                        wiv_cr3_unused_1 <= dbi[1];
+                        wiv_xmp <= dbi[1];
                         wiv_dvb <= dbi[2];
                         wiv_dmb <= dbi[3];
                         wiv_cr3_unused[7:4] = dbi[7:4];
@@ -1132,7 +1140,11 @@ begin
                         sprite_ye <= dbi[7:0];
                     end
                     /* 0x18 */ `REG_MEMORY_SETUP: begin
+`ifdef WIV_EXTENSIONS
+                        cb[3:0] <= dbi[3:0];
+`else
                         cb[2:0] <= dbi[3:1];
+`endif
                         vm[3:0] <= dbi[7:4];
                     end
                     /* 0x19 */ `REG_INTERRUPT_STATUS: begin

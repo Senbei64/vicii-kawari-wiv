@@ -87,7 +87,12 @@ module addressgen(
            input dma_done,
            input [15:0] dma_addr,
 `endif
+`ifdef WIV_EXTENSIONS
+           input [3:0] cb,
+           input wiv_xmp,
+`else
            input [2:0] cb,
+`endif
            input [9:0] vc,
            input [3:0] vm,
            input [2:0] rc,
@@ -163,9 +168,23 @@ begin
                 // old exclusively. But then we don't match VICE addresses
                 // in the sync and we're assuming VICE is right.
                 if (bmm_old | bmm_now) // bmm at start of half cycle
+`ifdef WIV_EXTENSIONS
+                    if (wiv_xmp)
+                        vic_addr = {cb + { 1'b0, vc[9:7]}, vc[6:0], rc}; // bitmap data
+                    else
+                        vic_addr = {cb[3], vc, rc}; // bitmap data
+`else
                     vic_addr = {cb[2], vc, rc}; // bitmap data
+`endif
                 else
+`ifdef WIV_EXTENSIONS
+                    if (wiv_xmp)
+                        vic_addr = {cb + { 3'b000, char_ptr[7]}, char_ptr[6:0], rc}; // character pixels
+                    else
+                        vic_addr = {cb[3:1], char_ptr, rc}; // character pixels
+`else
                     vic_addr = {cb, char_ptr, rc}; // character pixels
+`endif
                 if (ecm_now) // ecm at start of half cycle
                     vic_addr[10:9] = 2'b00;
 
@@ -173,9 +192,23 @@ begin
                 // bmm value (if it changed) determines and will be placed
                 // on the address bus shortly after CAS falls.
                 if (bmm_now) // bmm we transitioned to during the half cycle
+`ifdef WIV_EXTENSIONS
+                    if (wiv_xmp)
+                        vic_addr_now = {cb + { 1'b0, vc[9:7]}, vc[6:0], rc}; // bitmap data
+                    else
+                        vic_addr_now = {cb[3], vc, rc}; // bitmap data
+`else
                     vic_addr_now = {cb[2], vc, rc}; // bitmap data
+`endif
                 else
+`ifdef WIV_EXTENSIONS
+                    if (wiv_xmp)
+                        vic_addr_now = {cb + { 3'b000, char_ptr[7]}, char_ptr[6:0], rc}; // character pixels
+                    else
+                        vic_addr_now = {cb[3:1], char_ptr, rc}; // character pixels
+`else
                     vic_addr_now = {cb, char_ptr, rc}; // character pixels
+`endif
                 if (ecm_now) // current ecm
                     vic_addr_now[10:9] = 2'b00;
             end

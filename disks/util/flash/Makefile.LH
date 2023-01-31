@@ -1,8 +1,8 @@
 include Makefile.inc
 
 DISKNUMS=1 2 3 4 5
-NAME=whatif
-VERSION=0.2
+NAME=WhatIf
+VERSION=0.3
 FPGA=efinix_t20
 START_ADDRESS=659456
 IMAGE_SIZE=659456

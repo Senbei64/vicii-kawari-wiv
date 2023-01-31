@@ -233,7 +233,11 @@ wire [2:0] sprite_cnt;
 
 // Video matrix and character banks.
 wire [3:0] vm;
+`ifdef WIV_EXTENSIONS
+wire [3:0] cb;
+`else
 wire [2:0] cb;
+`endif
 
 // cycleNum : Each cycle is 8 pixels.
 // 6567R56A : 0-63
@@ -307,6 +311,7 @@ reg hires_badline;
 
 `ifdef WIV_EXTENSIONS
 wire wiv_cre; // VIC-WIV control registers read enable
+wire wiv_xmp; // VIC-WIV extended memory pointers: enable all bits of register $18
 wire wiv_dvb; // VIC-WIV disable vertical border
 wire wiv_dmb; // VIC-WIV disable main border
 `endif
@@ -857,6 +862,9 @@ addressgen vic_addressgen(
                .clk_dot4x(clk_dot4x),
                .clk_col16x(clk_col16x_4tm),
                .cb(cb),
+`ifdef WIV_EXTENSIONS
+               .wiv_xmp(wiv_xmp),
+`endif
 `ifdef WITH_RAM
                .dma_done(dma_done),
                .dma_addr(dma_addr),
@@ -893,7 +901,11 @@ hires_addressgen vic_hires_addressgen(
                      .rc(hires_rc),
                      .vc(hires_vc),
                      .fvc(hires_fvc),
+`ifdef WIV_EXTENSIONS
+                     .char_case(cb[1]),
+`else
                      .char_case(cb[0]),
+`endif
                      .video_mem_addr(video_ram_addr_b),
                      .video_mem_data(video_ram_data_out_b),
                      .hires_pixel_data(hires_pixel_data),
@@ -1115,6 +1127,7 @@ registers vic_registers(
 `endif // WITH_EXTENSIONS
 `ifdef WIV_EXTENSIONS
               .wiv_cre(wiv_cre),
+              .wiv_xmp(wiv_xmp),
               .wiv_dvb(wiv_dvb),
               .wiv_dmb(wiv_dmb),
 `endif
