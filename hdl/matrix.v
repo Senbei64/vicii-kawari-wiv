@@ -29,11 +29,20 @@ module matrix(
            input [8:0] raster_line,
            input badline,
            output reg idle,
+`ifdef WIV_EXTENSIONS
+           output reg [13:0] vc,
+           input [13:0] wiv_vcbase_latch,
+`else
            output reg [9:0] vc,
+`endif
            output reg [2:0] rc
        );
 
+`ifdef WIV_EXTENSIONS
+reg [13:0] vc_base;
+`else
 reg [9:0] vc_base;
+`endif
 
 // Update rc/vc/vc_base
 always @(posedge clk_dot4x)
@@ -49,8 +58,13 @@ always @(posedge clk_dot4x)
         if (clk_phi && phi_phase_start_1) begin
             // Reset at start of frame
             if (cycle_num == 1 && raster_line == 9'd0) begin
+`ifdef WIV_EXTENSIONS
+                vc_base <= wiv_vcbase_latch;
+                vc <= wiv_vcbase_latch;
+`else
                 vc_base <= 10'd0;
                 vc <= 10'd0;
+`endif
             end
 
             if (cycle_num > 14 && cycle_num < 55 && idle == `FALSE)

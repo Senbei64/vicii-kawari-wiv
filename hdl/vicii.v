@@ -283,7 +283,11 @@ wire [8:0] raster_irq_compare;
 // Keeps track of whether raster irq was raised on a line
 reg raster_irq_triggered;
 
+`ifdef WIV_EXTENSIONS
+wire [13:0] vc; // video counter
+`else
 wire [9:0] vc; // video counter
+`endif
 wire [2:0] rc; // row counter
 
 `ifdef WITH_EXTENSIONS
@@ -314,6 +318,7 @@ wire wiv_cre; // VIC-WIV control registers read enable
 wire wiv_xmp; // VIC-WIV extended memory pointers: enable all bits of register $18
 wire wiv_dvb; // VIC-WIV disable vertical border
 wire wiv_dmb; // VIC-WIV disable main border
+wire [13:0] wiv_vcbase_latch; // VIC-WIV writebale vcbase
 `endif
 
 wire idle;
@@ -630,6 +635,9 @@ matrix vic_matrix(
            .badline(badline),
            .idle(idle),
            .vc(vc),
+`ifdef WIV_EXTENSIONS
+           .wiv_vcbase_latch(wiv_vcbase_latch),
+`endif
            .rc(rc)
        );
 
@@ -1132,6 +1140,7 @@ registers vic_registers(
               .wiv_xmp(wiv_xmp),
               .wiv_dvb(wiv_dvb),
               .wiv_dmb(wiv_dmb),
+              .wiv_vcbase_latch(wiv_vcbase_latch),
 `endif
               .rw_ctl(rw_ctl),
               .chip(chip) // config out

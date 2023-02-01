@@ -191,6 +191,7 @@ module registers
            output reg wiv_dmb = 1'b0, // VIC-WIV disable main border
            output reg [7:4] wiv_cr3_unused = 4'b0000,
            output reg [7:0] wiv_cr4_unused = 8'b00000000,
+           output reg [13:0] wiv_vcbase_latch = 14'b00000000000000,
 `endif
 
            output reg rw_ctl = 1'b0,
@@ -1165,6 +1166,12 @@ begin
                         sprite_mmc <= dbi[7:0];
                     /* 0x1d */ `REG_SPRITE_EXPAND_X:
                         sprite_xe <= dbi[7:0];
+`ifdef WIV_EXTENSIONS
+                    /* 0x1e */ `REG_SPRITE_2_SPRITE_COLLISION: // WIV vcbase_latch low
+                        wiv_vcbase_latch[7:0] <= dbi[7:0];
+                    /* 0x1f */ `REG_SPRITE_2_DATA_COLLISION: // WIV vcbase_latch high
+                        wiv_vcbase_latch[13:8] <= dbi[5:0];
+`endif
 `ifndef TEST_PATTERN
                     /* 0x20 */ `REG_BORDER_COLOR:
                         ec <= dbi[3:0];

@@ -4,7 +4,7 @@ mkdir -p build
 #MAJ=1
 MAJ=0
 #MIN=12
-MIN=3
+MIN=4
 
 #ALL="MAINLH DOTCLH SARULH"
 ALL="WIV1LH"

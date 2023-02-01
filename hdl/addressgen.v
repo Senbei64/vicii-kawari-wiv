@@ -97,10 +97,11 @@ module addressgen(
 `ifdef WIV_EXTENSIONS
            input [3:0] cb,
            input wiv_xmp,
+           input [13:0] vc,
 `else
            input [2:0] cb,
-`endif
            input [9:0] vc,
+`endif
            input [3:0] vm,
            input [2:0] rc,
            input bmm_now,
@@ -176,9 +177,9 @@ begin
                 if (bmm_old | bmm_now) // bmm at start of half cycle
 `ifdef WIV_EXTENSIONS
                     if (wiv_xmp)
-                        vic_addr = {cb + { 1'b0, vc[9:7]}, vc[6:0], rc}; // bitmap data
+                        vic_addr = {cb + vc[10:7], vc[6:0], rc}; // bitmap data
                     else
-                        vic_addr = {cb[3], vc, rc}; // bitmap data
+                        vic_addr = {cb[3] + vc[10], vc[9:0], rc}; // bitmap data
 `else
                     vic_addr = {cb[2], vc, rc}; // bitmap data
 `endif
@@ -200,9 +201,9 @@ begin
                 if (bmm_now) // bmm we transitioned to during the half cycle
 `ifdef WIV_EXTENSIONS
                     if (wiv_xmp)
-                        vic_addr_now = {cb + { 1'b0, vc[9:7]}, vc[6:0], rc}; // bitmap data
+                        vic_addr_now = {cb + vc[10:7], vc[6:0], rc}; // bitmap data
                     else
-                        vic_addr_now = {cb[3], vc, rc}; // bitmap data
+                        vic_addr_now = {cb[3] + vc[10], vc[9:0], rc}; // bitmap data
 `else
                     vic_addr_now = {cb[2], vc, rc}; // bitmap data
 `endif
@@ -220,7 +221,11 @@ begin
             end
         end
         `VIC_HRC, `VIC_HGC: begin
+`ifdef WIV_EXTENSIONS
+            vic_addr = {vm + vc[13:10], vc[9:0]}; // video matrix c-access
+`else
             vic_addr = {vm, vc}; // video matrix c-access
+`endif
             vic_addr_now = vic_addr;
         end `VIC_LP: begin
             vic_addr = {vm, 7'b1111111, sprite_cnt}; // p-access
